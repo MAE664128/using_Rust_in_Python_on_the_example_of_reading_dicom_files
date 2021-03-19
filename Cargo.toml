@@ -1,0 +1,18 @@
+[package]
+name = "py_dcm_finder_rs"
+version = "0.1.0"
+authors = ["Matkin Alexandr <mae664128@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+walkdir = "2.3.1"
+rayon = "1.5.0"
+dicom = "0.3.0"
+
+[lib]
+name = "py_dcm_finder_rs"
+crate-type = ["cdylib"]
+
+[dependencies.pyo3]
+version = "0.13.2"
+features = ["extension-module"]
