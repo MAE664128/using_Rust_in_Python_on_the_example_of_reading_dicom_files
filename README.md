@@ -1,3 +1,6 @@
+# BAD CODE
+---
+
 # Finding DICOM files from Python code using Rust binary
 
 ## Description
