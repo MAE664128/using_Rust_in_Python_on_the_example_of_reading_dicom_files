@@ -1,11 +1,12 @@
-# BAD CODE
----
+
 
 # Finding DICOM files from Python code using Rust binary
 
 ## Description
 
-The code finds all DICOM files at the specified path.
+**Educational code**
+
+The code find and read all DICOM files at the specified path.
 
 The code is implemented for educational purposes, to get acquainted with rust and pyO3
 
