@@ -79,9 +79,6 @@ def _load_dicom_files(filenames: str, queue):
 
 
 def run(path):
-    # py_long = 5.01200250000000000
-    # rust_long = 5416.005100010005010000
-    # multi_py_long = 80.01030050100000000
     # Используем Python одним потоком
     start_time = time.time()
     paths = find_all_files(path)
@@ -94,9 +91,7 @@ def run(path):
 
     # Используем Rust
     start_time = time.time()
-    _ = py_dcm_finder_rs.load_dcm_files_in_dir(path,
-                                                     REQUIRED_TAGS,
-                                                     DEFAULT_TAG_VAL)
+    _ = py_dcm_finder_rs.load_dcm_files_in_dir(path, REQUIRED_TAGS, DEFAULT_TAG_VAL)
     rust_long = time.time() - start_time
     # ----------------------------------------
 
@@ -104,6 +99,8 @@ def run(path):
     start_time = time.time()
     find_and_read_dcm_in_dir_multiproc(path)
     multi_py_long = time.time() - start_time
+    # ----------------------------------------
+    
     print(f"Всего файлов в папке: {len(paths)}")
     print("─"*42)
     print(f"| {'Python одним процессом':25} | {f'{py_long:.5f}':10} |")
