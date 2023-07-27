@@ -1,18 +1,12 @@
 
 use std::path;
-use std::convert;
 use std::sync::{Arc, Mutex};
 use walkdir::{DirEntry, WalkDir};
 use rayon::prelude::*;
 
 pub use dicom::object as dcm_object;
-use std::ffi::OsString;
 use std::collections::HashMap;
-use std::path::PathBuf;
-use dicom::object::{DefaultDicomObject, Error, RootDicomObject};
-use dicom::object::mem::InMemDicomObject;
-use dicom::dictionary_std::StandardDataDictionary;
-use std::collections::hash_map::RandomState;
+
 
 
 
@@ -73,7 +67,7 @@ impl Scanner {
         &self.data
     }
 
-    /// Выплнить рекурсивный поск всех файлов в root_path
+    /// Perform a recursive search for all files in root_path
     fn find_files(&mut self) -> Result<(), ()> {
         let mut value: HashMap<String, Option<HashMap<String, String>>> = HashMap::new();
         let path = self.get_root_path_as_pathbuf();
@@ -89,8 +83,7 @@ impl Scanner {
         Ok(())
     }
 
-    /// Выполнить попытку чтения всех файлов по пути root_path
-    /// Если файл является DICOM, то информация о нем будет добавлена в data
+    /// Try to read all files in root_path.
     pub fn read_files(&mut self) -> &Option<HashMap<String, Option<HashMap<String, String>>>> {
         if self.data.is_none() { self.find_files().unwrap_or_else(|_| {}); }
         let load_tags = self.get_load_tags();
@@ -156,7 +149,7 @@ pub fn find_all_files(dir_path: &path::PathBuf) -> Vec<path::PathBuf> {
 }
 
 /// Возвращает значения тегов из DICOM объекта, в виде HashMap<k,v>
-pub fn load_tags_of_dcm<'a>(dcm_obj: DefaultDicomObject, load_tags: &Vec<String>,
+pub fn load_tags_of_dcm<'a>(dcm_obj: dicom::object::DefaultDicomObject, load_tags: &Vec<String>,
                             tag_val_default: &str) -> HashMap<String, String> {
     let mut tags: HashMap<String, String> = HashMap::new();
     for tag_name in load_tags {
@@ -194,7 +187,11 @@ pub fn load_tags_of_dcm<'a>(dcm_obj: DefaultDicomObject, load_tags: &Vec<String>
 /// Иначе возвращает None
 pub fn load_dcm_file(path: path::PathBuf, load_tags: &Vec<String>,
                      tag_val_default: &str) -> Option<HashMap<String, String>> {
-    match dcm_object::open_file(&path.as_path()) {
+
+    let mut open_dcm_options = dicom::object::OpenFileOptions::new();
+    open_dcm_options = open_dcm_options.read_until(dicom::dictionary_std::tags::PIXEL_DATA);
+
+    match open_dcm_options.open_file(&path.as_path()) {
         Ok(dcm_obj) => {
             Some(load_tags_of_dcm(dcm_obj, load_tags, tag_val_default))
         }

@@ -5,14 +5,14 @@ authors = ["Matkin Alexandr <mae664128@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-walkdir = "2.3.1"
-rayon = "1.5.0"
-dicom = "0.3.0"
+walkdir = "2.3.3"
+rayon = "1.7.0"
+dicom = "0.6.0"
 
 [lib]
 name = "py_dcm_finder_rs"
 crate-type = ["cdylib"]
 
 [dependencies.pyo3]
-version = "0.13.2"
+version = "0.19.0"
 features = ["extension-module"]

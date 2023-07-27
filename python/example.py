@@ -4,14 +4,13 @@ from multiprocessing.pool import Pool
 from queue import Queue, Empty
 from contextlib import closing
 
-
 import numpy as np
 import py_dcm_finder_rs
 from pydicom import dicomio, errors
 
 import time
 
-REQUIRED_TAGS = (
+REQUIRED_TAGS = [
     'PatientID',
     'PatientName',
     'PatientBirthDate',
@@ -28,7 +27,7 @@ REQUIRED_TAGS = (
     'InstanceNumber',
     'NumberOfFrames',
     'ImagePositionPatient',
-)
+]
 
 DEFAULT_TAG_VAL = "*NO_TAG*"
 
@@ -67,7 +66,7 @@ def _load_dicom_files(filenames: str, queue):
     """Для DICOM-файлов из списка filenames загружаем минимальный набор тегов и помещаем в очередь."""
     for filename in filenames:
         try:
-            dcm = dicomio.read_file(filename, specific_tags=REQUIRED_TAGS)
+            dcm = dicomio.read_file(filename, specific_tags=REQUIRED_TAGS, stop_before_pixels=True)
             tags = {t: dcm.get(t) if t in dcm else DEFAULT_TAG_VAL for t in REQUIRED_TAGS}
             queue.put((filename, tags))
         except errors.InvalidDicomError:
@@ -78,36 +77,39 @@ def _load_dicom_files(filenames: str, queue):
             pass
 
 
-def run(path):
-    # Используем Python одним потоком
+def run():
+    # Using only Python with one process
     start_time = time.time()
-    paths = find_all_files(path)
+    paths = find_all_files(r"C:\Users\Alexandr\Desktop\test\1\Python in one process")
     for file_path in paths:
-        if os.path.isdir(file_path): continue
-        dcm = dicomio.read_file(file_path, specific_tags=REQUIRED_TAGS)
-        tags_py = {t: dcm.get(t) if t in dcm else DEFAULT_TAG_VAL for t in REQUIRED_TAGS}
+        if os.path.isdir(file_path):
+            continue
+        _dcm = dicomio.read_file(file_path, specific_tags=REQUIRED_TAGS, stop_before_pixels=True)
     py_long = time.time() - start_time
     # ----------------------------------------
 
-    # Используем Rust
+    # Using Rust
     start_time = time.time()
-    _ = py_dcm_finder_rs.load_dcm_files_in_dir(path, REQUIRED_TAGS, DEFAULT_TAG_VAL)
+    _ = py_dcm_finder_rs.load_dcm_files_in_dir(
+        r"C:\Users\Alexandr\Desktop\test\1\Rust call from python",
+        REQUIRED_TAGS, DEFAULT_TAG_VAL
+    )
     rust_long = time.time() - start_time
     # ----------------------------------------
 
-    # Используем Python c multiprocessing
+    # Using only Python with multiprocessing
     start_time = time.time()
-    find_and_read_dcm_in_dir_multiproc(path)
+    find_and_read_dcm_in_dir_multiproc(r"C:\Users\Alexandr\Desktop\test\1\Python multi process", )
     multi_py_long = time.time() - start_time
     # ----------------------------------------
-    
+
     print(f"Всего файлов в папке: {len(paths)}")
-    print("─"*42)
-    print(f"| {'Python одним процессом':25} | {f'{py_long:.5f}':10} |")
-    print(f"| {'Rust вызванный из python':25} | {f'{rust_long:.5f}':10} |")
-    print(f"| {'Python мульти процес.':25} | {f'{multi_py_long:.5f}':10} |")
-    print("─"*42)
+    print("─" * 42)
+    print(f"| {'Python single process':25} | {f'{py_long:.5f}':10} |")
+    print(f"| {'Rust called from python':25} | {f'{rust_long:.5f}':10} |")
+    print(f"| {'Python multiprocess.':25} | {f'{multi_py_long:.5f}':10} |")
+    print("─" * 42)
+
 
 if __name__ == '__main__':
-    path = "C:/Users/Alexsandr/Downloads/1"
-    run(path)
+    run()

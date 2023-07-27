@@ -6,19 +6,30 @@
 
 **Educational code**
 
-***Use python 3.8***
+***Use python 3.11***
 
 The code find and read all DICOM files at the specified path.
 
 The code is implemented for educational purposes, to get acquainted with rust and pyO3
 
 ## Example: find and read all DICOM files
-*(AMD Ryzen 7 3700X 8-Core Processor; Samsung SSD 970 EVO Plus 1TB)*
+
+*(AMD Ryzen 5 6500X 6-Core Processor; Samsung SSD 970 EVO Plus 500TB)*
 ```commandline
-Total files in folder: 25545
-┏───────────────────────────┬────────────┑
-│ Python in one process     │ 32.93652 s.│
-│ Rust call from python     │ 11.35903 s.│
-│ Python multi process.     │ 8.91955  s.│
-┕───────────────────────────┴────────────┙
+Всего файлов в папке: 1972
+──────────────────────────────────────────
+| Python single process     | 8.45892s   |
+| Rust called from python   | 1.13431s   |
+| Python multiprocess.      | 2.13549s   |
+──────────────────────────────────────────
+```
+
+*(AMD Ryzen 5 6500X 6-Core Processor; Samsung SSD 970 EVO Plus 500TB)*
+```commandline
+Всего файлов в папке: 66648
+──────────────────────────────────────────
+| Python single process     | 298.16290s |
+| Rust called from python   |  41.99200s |
+| Python multiprocess.      |  54.89347s |
+──────────────────────────────────────────
 ```
